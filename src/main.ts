@@ -103,43 +103,40 @@ class Grid {
 		this.elem.style.setProperty('--h', this.height.toString());
 		this.elem.append(...this.tiles.map((tile) => tile.elem));
 		let hasInitialized = false;
-		function addLeftClick(tile: Tile, i: number) {
-			tile.setListener(
-				() => {
-					if (tile.state === 'FLAGGED') return;
-					const neighborIndices = Grid.getNeighbors(i);
-					if (!hasInitialized) {
-						hasInitialized = true;
-						Grid.tiles.forEach((tile, j) => {
-							if ([...neighborIndices, i].includes(j)) return;
-							if (Math.random() < 0.1) {
-								tile.setMine(true);
-								Grid.getNeighbors(j).forEach((k) =>
-									Grid.tiles[k].incrementCount(),
-								);
-							}
-						});
-					}
-					tile.flip();
-					if (!tile.mineCount)
-						setTimeout(
-							() =>
-								neighborIndices.forEach((i) => {
-									const tile = Grid.tiles[i];
-									if (tile) tile.elem.click();
-								}),
-							100,
-						);
-				},
-				{ once: true },
-			);
-		}
 		this.tiles.forEach((tile, i) => {
-			addLeftClick(tile, i);
+			tile.setListener(() => {
+				if (tile.state === 'FLAGGED') return;
+				const neighborIndices = Grid.getNeighbors(i);
+				if (!hasInitialized) {
+					hasInitialized = true;
+					Grid.tiles.forEach((tile, j) => {
+						if ([...neighborIndices, i].includes(j)) return;
+						if (Math.random() < 0.1) {
+							tile.setMine(true);
+							Grid.getNeighbors(j).forEach((k) =>
+								Grid.tiles[k].incrementCount(),
+							);
+						}
+					});
+				}
+				if (tile.state === 'HIDDEN') tile.flip();
+				const flagCount = neighborIndices.reduce((acc, cur) => {
+					if (Grid.tiles[cur].state === 'FLAGGED') acc++;
+					return acc;
+				}, 0);
+				if (!tile.mineCount || flagCount === tile.mineCount)
+					setTimeout(
+						() =>
+							neighborIndices.forEach((i) => {
+								const tile = Grid.tiles[i];
+								if (tile && tile.state === 'HIDDEN')
+									tile.elem.click();
+							}),
+						100,
+					);
+			});
 			tile.setListener(
 				() => {
-					if (tile.state === 'HIDDEN' && !tile.elem.onclick)
-						addLeftClick(tile, i);
 					tile.toggleFlag();
 				},
 				{ isRightClick: true },

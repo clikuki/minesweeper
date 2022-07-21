@@ -1,0 +1,3 @@
+node_modules
+# remove dest files on finish
+dest

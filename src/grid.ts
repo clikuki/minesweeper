@@ -27,6 +27,7 @@ export class Grid {
 						const index = randInt(this.tiles.length - 1);
 						const tile = this.tiles[index];
 						if (
+							tile !== clickedTile &&
 							!clickedTileNeighbors.includes(tile) &&
 							!tile.isMine
 						) {

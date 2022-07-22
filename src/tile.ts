@@ -25,8 +25,9 @@ export class Tile {
 	}
 	setMine(bool: boolean) {
 		this.isMine = bool;
-		if (this.isMine) this.backEl.textContent = Symbols.bomb;
-		else if (this.mineCount)
+		const isRevealed = this.state === 'REVEALED';
+		if (this.isMine && isRevealed) this.backEl.textContent = Symbols.bomb;
+		else if (this.mineCount && isRevealed)
 			this.backEl.textContent = this.mineCount.toString();
 		else this.backEl.textContent = '';
 	}
@@ -46,8 +47,15 @@ export class Tile {
 	flip() {
 		return new Promise<void>((res, rej) => {
 			if (this.state === 'FLAGGED') return rej();
-			if (this.state === 'HIDDEN') this.state = 'REVEALED';
-			else this.state = 'HIDDEN';
+			if (this.state === 'HIDDEN') {
+				this.state = 'REVEALED';
+				if (this.isMine) this.backEl.textContent = Symbols.bomb;
+				else if (this.mineCount)
+					this.backEl.textContent = this.mineCount.toString();
+			} else {
+				this.state = 'HIDDEN';
+				this.backEl.textContent = '';
+			}
 			this.elem.classList.toggle('flipped');
 			this.elem.addEventListener('animationend', () => res(), {
 				once: true,
@@ -56,7 +64,6 @@ export class Tile {
 	}
 	incrementCount() {
 		++this.mineCount;
-		if (!this.isMine) this.backEl.textContent = this.mineCount.toString();
 	}
 	setListener(
 		listener: () => void,

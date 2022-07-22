@@ -1,8 +1,10 @@
 :root {
-	--c-primary-500: #03446a;
-	--c-primary-600: #03314c;
-	--c-primary-700: #031723;
-	--c-secondary-500: white;
+	--c-primary-500: hsl(0, 0%, 100%);
+	--c-primary-600: hsl(0, 0%, 90%);
+	--c-primary-700: hsl(0, 0%, 80%);
+	--c-secondary-500: hsl(39, 63%, 50%);
+	--c-secondary-600: hsl(39, 63%, 60%);
+	--c-secondary-700: hsl(39, 63%, 70%);
 }
 body {
 	background-color: #eee;
@@ -47,7 +49,7 @@ body {
 	height: 100%;
 	width: 100%;
 	text-align: center;
-	border-radius: 5px;
+	border-radius: 0.3rem;
 	backface-visibility: hidden;
 	display: grid;
 	place-content: center;

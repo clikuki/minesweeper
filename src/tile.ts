@@ -12,6 +12,7 @@ export class Tile {
 	// data
 	state: TileStates = 'HIDDEN';
 	isMine = false;
+	isFlipped = false;
 	mineCount = 0;
 	constructor() {
 		this.elem.classList.add('tile');
@@ -57,9 +58,16 @@ export class Tile {
 				this.backEl.textContent = '';
 			}
 			this.elem.classList.toggle('flipped');
-			this.elem.addEventListener('transitionend', () => res(), {
-				once: true,
-			});
+			this.elem.addEventListener(
+				'transitionend',
+				() => {
+					this.isFlipped = !this.isFlipped;
+					res();
+				},
+				{
+					once: true,
+				},
+			);
 		});
 	}
 	jumpOut() {
@@ -69,6 +77,19 @@ export class Tile {
 				'animationend',
 				() => {
 					this.elem.classList.remove('jumpOut');
+					res();
+				},
+				{ once: true },
+			);
+		});
+	}
+	jumpUp() {
+		return new Promise<void>((res) => {
+			this.elem.classList.add('jumpUp');
+			this.elem.addEventListener(
+				'animationend',
+				() => {
+					this.elem.classList.remove('jumpUp');
 					res();
 				},
 				{ once: true },

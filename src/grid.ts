@@ -6,6 +6,7 @@ export class Grid {
 	tileNeighbors: Tile[][];
 	hasInitialized = false;
 	hasLost = false;
+	hasWon = false;
 	constructor(
 		width: number,
 		height: number,
@@ -18,10 +19,15 @@ export class Grid {
 		this.elem.classList.add('grid');
 		this.elem.style.cssText = `--w: ${width}; --h: ${height};`;
 		this.elem.append(...this.tiles.map((tile) => tile.elem));
-		parent.appendChild(this.elem);
+		parent.replaceChildren(this.elem);
 		this.tiles.forEach((clickedTile, i) => {
 			clickedTile.setListener(() => {
-				if (clickedTile.state === 'FLAGGED' || this.hasLost) return;
+				if (
+					clickedTile.state === 'FLAGGED' ||
+					this.hasLost ||
+					this.hasWon
+				)
+					return;
 				const clickedTileNeighbors = this.tileNeighbors[i];
 				if (!this.hasInitialized) {
 					this.hasInitialized = true;
@@ -48,6 +54,10 @@ export class Grid {
 						this.hasLost = true;
 						prom.then(() => this.doLoseAnim());
 						return;
+					} else if (this.checkForWin()) {
+						this.hasWon = true;
+						setTimeout(() => this.doWinAnim(width), 100);
+						return;
 					}
 				}
 				if (
@@ -55,23 +65,31 @@ export class Grid {
 					clickedTile.mineCount ===
 						Grid.countFlaggedTiles(clickedTileNeighbors)
 				)
-					setTimeout(() => {
-						const hasMineNeighbor = clickedTileNeighbors.some(
-							(tile) => tile.isMine && tile.state === 'HIDDEN',
-						);
-						clickedTileNeighbors
-							.filter(
+					setTimeout(
+						() => {
+							const hasMineNeighbor = clickedTileNeighbors.some(
 								(tile) =>
-									tile.state === 'HIDDEN' &&
-									(!hasMineNeighbor || tile.isMine),
-							)
-							.forEach((tile) => tile.elem.click());
-					}, 100);
+									tile.isMine && tile.state === 'HIDDEN',
+							);
+							clickedTileNeighbors
+								.filter(
+									(tile) =>
+										tile.state === 'HIDDEN' &&
+										(!hasMineNeighbor || tile.isMine),
+								)
+								.forEach((tile) => tile.elem.click());
+						},
+						clickedTile.mineCount ? 0 : 100,
+					);
 			});
 			clickedTile.setListener(
 				() => {
 					clickedTile.toggleFlag();
 					if (clickCB) clickCB(clickedTile.isMine, true);
+					if (this.checkForWin()) {
+						this.hasWon = true;
+						setTimeout(() => this.doWinAnim(width), 100);
+					}
 				},
 				{
 					isRightClick: true,
@@ -79,13 +97,30 @@ export class Grid {
 			);
 		});
 	}
+	checkForWin() {
+		return this.tiles.every(
+			(tile) =>
+				(!tile.isMine && tile.state === 'REVEALED') ||
+				(tile.isMine && tile.state === 'FLAGGED'),
+		);
+	}
 	doLoseAnim() {
 		let count = 0;
-		this.tiles.forEach((tile) => {
-			if (!tile.isMine || tile.state !== 'HIDDEN') return;
-			setTimeout(() => {
-				tile.flip().then(() => tile.jumpOut());
-			}, count++ * 100);
+		const mines = this.tiles.filter(
+			(tile) => tile.isMine && tile.state !== 'FLAGGED',
+		);
+		const hiddenMines = mines.filter((mine) => mine.state === 'HIDDEN');
+		Promise.all(
+			hiddenMines.map((mine) =>
+				delayPromise(count++ * 100, () => mine.flip()),
+			),
+		).then(() => mines.forEach((mine) => mine.jumpOut()));
+	}
+	doWinAnim(width: number) {
+		this.tiles.forEach((tile, i) => {
+			const x = i % width;
+			const y = Math.floor(i / width);
+			setTimeout(() => tile.jumpUp(), (x + y) * 100);
 		});
 	}
 	static countFlaggedTiles(tiles: Tile[]) {
@@ -125,4 +160,15 @@ export class Grid {
 			return neighbors;
 		});
 	}
+}
+
+function delayPromise<T>(
+	delay: number,
+	getPromise: () => Promise<T>,
+): Promise<T> {
+	return new Promise<T>((res) => {
+		setTimeout(() => {
+			getPromise().then((val) => res(val));
+		}, delay);
+	});
 }

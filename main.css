@@ -93,7 +93,7 @@ body {
 		translate: 0 0;
 	}
 	50% {
-		translate: 0 -10px;
+		translate: 0 -1rem;
 	}
 	to {
 		translate: 0 0;

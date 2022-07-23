@@ -57,9 +57,22 @@ export class Tile {
 				this.backEl.textContent = '';
 			}
 			this.elem.classList.toggle('flipped');
-			this.elem.addEventListener('animationend', () => res(), {
+			this.elem.addEventListener('transitionend', () => res(), {
 				once: true,
 			});
+		});
+	}
+	jumpOut() {
+		return new Promise<void>((res) => {
+			this.elem.classList.add('jumpOut');
+			this.elem.addEventListener(
+				'animationend',
+				() => {
+					this.elem.classList.remove('jumpOut');
+					res();
+				},
+				{ once: true },
+			);
 		});
 	}
 	incrementCount() {

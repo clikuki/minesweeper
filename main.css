@@ -35,13 +35,17 @@ body {
 	width: 100%;
 	height: 100%;
 	box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-	transition: transform 0.8s;
+	transition: rotate 0.8s;
 	transform-style: preserve-3d;
 	cursor: pointer;
 }
 .tile.flipped .content {
-	transform: rotateY(180deg);
-	transition: transform 1s;
+	rotate: y 180deg;
+	transition: rotate 1s;
+}
+.tile.jumpOut .content {
+	animation: jumpOut ease-in-out 500ms;
+	z-index: 1;
 }
 .tile .content .front,
 .tile .content .back {
@@ -68,5 +72,16 @@ body {
 .tile .content .back {
 	background: var(--c-primary-500);
 	color: var(--c-secondary-500);
-	transform: rotateY(180deg);
+	rotate: y 180deg;
+}
+@keyframes jumpOut {
+	from {
+		translate: 0 0 0;
+	}
+	50% {
+		translate: 0 0 3rem;
+	}
+	to {
+		translate: 0 0 0;
+	}
 }

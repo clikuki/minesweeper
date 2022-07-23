@@ -5,11 +5,13 @@ export class Grid {
 	tiles: Tile[];
 	tileNeighbors: Tile[][];
 	hasInitialized = false;
+	hasLost = false;
 	constructor(
 		width: number,
 		height: number,
 		mineCount: number,
 		parent: HTMLElement,
+		clickCB?: (isMine: boolean, wasFlagged: boolean) => void,
 	) {
 		this.tiles = getArray(width, height, () => new Tile());
 		this.tileNeighbors = Grid.createNeighborData(width, this.tiles);
@@ -19,7 +21,7 @@ export class Grid {
 		parent.appendChild(this.elem);
 		this.tiles.forEach((clickedTile, i) => {
 			clickedTile.setListener(() => {
-				if (clickedTile.state === 'FLAGGED') return;
+				if (clickedTile.state === 'FLAGGED' || this.hasLost) return;
 				const clickedTileNeighbors = this.tileNeighbors[i];
 				if (!this.hasInitialized) {
 					this.hasInitialized = true;
@@ -39,23 +41,51 @@ export class Grid {
 						}
 					}
 				}
-				if (clickedTile.state === 'HIDDEN') clickedTile.flip();
+				if (clickedTile.state === 'HIDDEN') {
+					const prom = clickedTile.flip();
+					if (clickCB) clickCB(clickedTile.isMine, false);
+					if (clickedTile.isMine) {
+						this.hasLost = true;
+						prom.then(() => this.doLoseAnim());
+						return;
+					}
+				}
 				if (
 					!clickedTile.mineCount ||
 					clickedTile.mineCount ===
 						Grid.countFlaggedTiles(clickedTileNeighbors)
 				)
-					setTimeout(
-						() =>
-							clickedTileNeighbors
-								.filter((tile) => tile.state === 'HIDDEN')
-								.forEach((tile) => tile.elem.click()),
-						100,
-					);
+					setTimeout(() => {
+						const hasMineNeighbor = clickedTileNeighbors.some(
+							(tile) => tile.isMine && tile.state === 'HIDDEN',
+						);
+						clickedTileNeighbors
+							.filter(
+								(tile) =>
+									tile.state === 'HIDDEN' &&
+									(!hasMineNeighbor || tile.isMine),
+							)
+							.forEach((tile) => tile.elem.click());
+					}, 100);
 			});
-			clickedTile.setListener(() => clickedTile.toggleFlag(), {
-				isRightClick: true,
-			});
+			clickedTile.setListener(
+				() => {
+					clickedTile.toggleFlag();
+					if (clickCB) clickCB(clickedTile.isMine, true);
+				},
+				{
+					isRightClick: true,
+				},
+			);
+		});
+	}
+	doLoseAnim() {
+		let count = 0;
+		this.tiles.forEach((tile) => {
+			if (!tile.isMine || tile.state !== 'HIDDEN') return;
+			setTimeout(() => {
+				tile.flip().then(() => tile.jumpOut());
+			}, count++ * 100);
 		});
 	}
 	static countFlaggedTiles(tiles: Tile[]) {

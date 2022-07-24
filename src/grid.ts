@@ -60,7 +60,7 @@ export class Grid {
 						prom.then(() => this.doLoseAnim());
 					} else if (this.checkForWin()) {
 						this.hasWon = true;
-						setTimeout(() => this.doWinAnim(width), 100);
+						setTimeout(() => this.doWinAnim(width), 500);
 					}
 					if (clickCB)
 						clickCB({
@@ -102,7 +102,7 @@ export class Grid {
 					clickedTile.toggleFlag();
 					if (this.checkForWin()) {
 						this.hasWon = true;
-						setTimeout(() => this.doWinAnim(width), 100);
+						setTimeout(() => this.doWinAnim(width), 500);
 					}
 					if (clickCB)
 						clickCB({

@@ -1,5 +1,11 @@
 import { Tile } from './tile.js';
 import { getArray, randInt } from './utils.js';
+interface clickNotifyParams {
+	isMine: boolean;
+	isFlagged: boolean;
+	isUnflagged: boolean;
+	gameState: 'NORMAL' | 'WIN' | 'LOSE';
+}
 export class Grid {
 	elem = document.createElement('div');
 	tiles: Tile[];
@@ -12,7 +18,7 @@ export class Grid {
 		height: number,
 		mineCount: number,
 		parent: HTMLElement,
-		clickCB?: (isMine: boolean, wasFlagged: boolean) => void,
+		clickCB?: (params: clickNotifyParams) => void,
 	) {
 		this.tiles = getArray(width, height, () => new Tile());
 		this.tileNeighbors = Grid.createNeighborData(width, this.tiles);
@@ -49,16 +55,25 @@ export class Grid {
 				}
 				if (clickedTile.state === 'HIDDEN') {
 					const prom = clickedTile.flip();
-					if (clickCB) clickCB(clickedTile.isMine, false);
 					if (clickedTile.isMine) {
 						this.hasLost = true;
 						prom.then(() => this.doLoseAnim());
-						return;
 					} else if (this.checkForWin()) {
 						this.hasWon = true;
 						setTimeout(() => this.doWinAnim(width), 100);
-						return;
 					}
+					if (clickCB)
+						clickCB({
+							isMine: clickedTile.isMine,
+							isFlagged: false,
+							isUnflagged: false,
+							gameState: this.hasLost
+								? 'LOSE'
+								: this.hasWon
+								? 'WIN'
+								: 'NORMAL',
+						});
+					if (this.hasLost || this.hasWon) return;
 				}
 				if (
 					!clickedTile.mineCount ||
@@ -85,11 +100,17 @@ export class Grid {
 			clickedTile.setListener(
 				() => {
 					clickedTile.toggleFlag();
-					if (clickCB) clickCB(clickedTile.isMine, true);
 					if (this.checkForWin()) {
 						this.hasWon = true;
 						setTimeout(() => this.doWinAnim(width), 100);
 					}
+					if (clickCB)
+						clickCB({
+							isMine: clickedTile.isMine,
+							isFlagged: clickedTile.state === 'FLAGGED',
+							isUnflagged: clickedTile.state !== 'FLAGGED',
+							gameState: this.hasWon ? 'WIN' : 'NORMAL',
+						});
 				},
 				{
 					isRightClick: true,

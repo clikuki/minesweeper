@@ -1,8 +1,5 @@
+import { Symbols } from './symbols';
 type TileStates = 'HIDDEN' | 'REVEALED' | 'FLAGGED';
-const enum Symbols {
-	flag = '🚩',
-	bomb = '💣',
-}
 
 export class Tile {
 	// Elements

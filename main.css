@@ -10,10 +10,16 @@ body {
 	background-color: #eee;
 	margin: 0;
 	display: flex;
-	flex-direction: column;
-	align-items: center;
 	justify-content: space-evenly;
 	min-height: 100vh;
+	font-family: system-ui;
+	gap: 1rem;
+	padding: 0 0.5rem;
+}
+/* || Board / Game */
+.container {
+	display: grid;
+	place-items: center;
 }
 .grid {
 	gap: 0.2rem;
@@ -98,4 +104,44 @@ body {
 	to {
 		translate: 0 0;
 	}
+}
+
+/* || UI */
+.info {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.info :where(h1, h2) {
+	border-bottom: 1px solid black;
+	width: 100%;
+	margin-bottom: 0;
+}
+.info :where(h1, h2) span {
+	padding-left: 1rem;
+}
+.gameDisplays {
+	display: flex;
+	font-size: 2rem;
+	margin: 0.5rem 1rem 2rem 1rem;
+	gap: 3rem;
+	align-items: center;
+}
+.gameDisplays > * {
+	margin: 0;
+}
+.controlsList {
+	padding-left: 1rem;
+}
+.note {
+	font-size: 0.9rem;
+	margin: 0;
+}
+.info button {
+	font-size: 1.3rem;
+	border: none;
+	border-radius: 0.3rem;
+	margin-top: 0.5rem;
+	padding: 0 1rem;
+	background-color: var(--c-secondary-500);
 }

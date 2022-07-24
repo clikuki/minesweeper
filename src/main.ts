@@ -1,7 +1,7 @@
 import { Symbols } from './symbols';
 import { Grid } from './grid.js';
 
-const mineCount = 10;
+const mineCount = 20;
 let flagsLeft = mineCount;
 let hasClicked = false;
 let timeStart = 0;

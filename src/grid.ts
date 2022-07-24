@@ -131,10 +131,13 @@ export class Grid {
 			(tile) => tile.isMine && tile.state !== 'FLAGGED',
 		);
 		const hiddenMines = mines.filter((mine) => mine.state === 'HIDDEN');
+		const falseFlags = this.tiles.filter(
+			(tile) => tile.state === 'FLAGGED' && !tile.isMine,
+		);
 		Promise.all(
-			hiddenMines.map((mine) =>
-				delayPromise(count++ * 100, () => mine.flip()),
-			),
+			hiddenMines
+				.concat(falseFlags)
+				.map((tile) => delayPromise(count++ * 100, () => tile.flip())),
 		).then(() => mines.forEach((mine) => mine.jumpOut()));
 	}
 	doWinAnim(width: number) {

@@ -43,8 +43,7 @@ export class Tile {
 		setTimeout(() => (this.disableFlagToggle = false), 100);
 	}
 	flip() {
-		return new Promise<void>((res, rej) => {
-			if (this.state === 'FLAGGED') return rej();
+		return new Promise<void>((res) => {
 			if (this.state === 'HIDDEN') {
 				this.state = 'REVEALED';
 				if (this.isMine) this.backEl.textContent = Symbols.bomb;

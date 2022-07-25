@@ -100,6 +100,7 @@ class Difficulty {
 
 const container = document.querySelector('.container') as HTMLElement;
 function newGrid() {
+	FlagsLeft.set(Difficulty.current.mineCount);
 	let grid = new Grid(
 		Difficulty.current.width,
 		Difficulty.current.height,
@@ -116,7 +117,6 @@ function newGrid() {
 
 function restart() {
 	Timer.reset();
-	FlagsLeft.set(Difficulty.current.mineCount);
 	newGrid();
 }
 

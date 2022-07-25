@@ -121,6 +121,7 @@ export class Grid {
 			});
 			clickedTile.setListener(
 				() => {
+					if (!this.hasInitialized) return;
 					clickedTile.toggleFlag();
 					if (this.checkForWin()) {
 						this.hasWon = true;

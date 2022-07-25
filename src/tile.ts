@@ -11,7 +11,9 @@ export class Tile {
 	isMine = false;
 	isFlipped = false;
 	mineCount = 0;
-	constructor() {
+	constructor(tileSize?: number) {
+		if (tileSize !== undefined)
+			this.elem.style.cssText = `--tile-size:${tileSize}px;`;
 		this.elem.classList.add('tile');
 		const contentEl = document.createElement('div');
 		contentEl.classList.add('content');

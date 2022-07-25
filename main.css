@@ -5,6 +5,8 @@
 	--c-secondary-500: hsl(39, 63%, 50%);
 	--c-secondary-600: hsl(39, 63%, 60%);
 	--c-secondary-700: hsl(39, 63%, 70%);
+	--tile-size: 3.3rem;
+	--grid-gap: 0.2rem;
 }
 body {
 	background-color: #eee;
@@ -22,17 +24,16 @@ body {
 	place-items: center;
 }
 .grid {
-	gap: 0.2rem;
+	gap: var(--grid-gap);
 	display: grid;
 	grid-template-columns: repeat(var(--w), 1fr);
 	grid-template-rows: repeat(var(--h), 1fr);
 	width: fit-content;
 }
 .tile {
-	--size: 3.3rem;
 	position: relative;
-	width: var(--size);
-	height: var(--size);
+	width: var(--tile-size);
+	height: var(--tile-size);
 	float: left;
 	perspective: 500px;
 }
@@ -72,7 +73,7 @@ body {
 	transform-style: preserve-3d;
 	display: grid;
 	place-content: center;
-	font-size: calc(var(--size) - 1rem);
+	font-size: calc(var(--tile-size) - 1rem);
 }
 .tile .content .front {
 	background: var(--c-secondary-500);

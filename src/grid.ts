@@ -1,5 +1,21 @@
 import { Tile } from './tile.js';
 import { getArray, randInt } from './utils.js';
+
+const root = document.querySelector(':root') as HTMLHtmlElement;
+const rootComputedStyles = getComputedStyle(root);
+const fontSize = parseFloat(rootComputedStyles.fontSize);
+const gridGap =
+	parseFloat(rootComputedStyles.getPropertyValue('--grid-gap')) * fontSize;
+const defaultTileSize =
+	parseFloat(rootComputedStyles.getPropertyValue('--tile-size')) * fontSize;
+const windowPadding = 10;
+function getTileSize(height: number) {
+	return (innerHeight - windowPadding) / height - gridGap;
+}
+function defaultTileSizeIsTooBig(height: number) {
+	return defaultTileSize * height + gridGap * --height > innerHeight;
+}
+
 interface clickNotifyParams {
 	isMine: boolean;
 	isFlagged: boolean;
@@ -20,7 +36,13 @@ export class Grid {
 		parent: HTMLElement,
 		clickCB?: (params: clickNotifyParams) => void,
 	) {
-		this.tiles = getArray(width, height, () => new Tile());
+		const useCustomTileSize = defaultTileSizeIsTooBig(height);
+		const fitTileSize = getTileSize(height);
+		this.tiles = getArray(
+			width,
+			height,
+			() => new Tile(useCustomTileSize ? fitTileSize : undefined),
+		);
 		this.tileNeighbors = Grid.createNeighborData(width, this.tiles);
 		this.elem.classList.add('grid');
 		this.elem.style.cssText = `--w: ${width}; --h: ${height};`;

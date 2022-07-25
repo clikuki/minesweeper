@@ -19,8 +19,8 @@ class FlagsLeft {
 
 class Timer {
 	static elem = document.querySelector('.timer') as HTMLParagraphElement;
-	static isStarted = false;
 	static timeStart = 0;
+	static doTicks = false;
 	static updateDisplay(t: number) {
 		const timeSince = t - this.timeStart;
 		const minutes = Math.floor(timeSince / 1000 / 60);
@@ -31,21 +31,25 @@ class Timer {
 		);
 		this.elem.textContent = `${minutes}:${seconds}:${milliseconds}`;
 	}
+	static reset() {
+		this.doTicks = false;
+		this.timeStart = 0;
+		this.updateDisplay(0);
+	}
+	static startUpdates() {
+		this.doTicks = true;
+	}
+	static stopUpdates() {
+		this.doTicks = false;
+	}
 	static {
 		const That = this;
 		requestAnimationFrame(function loop(t: number) {
 			requestAnimationFrame(loop);
-			if (!That.isStarted) That.timeStart = t;
-			else That.updateDisplay(t);
+			if (That.doTicks) {
+				That.updateDisplay(t);
+			} else That.timeStart = t;
 		});
-	}
-	static reset() {
-		this.isStarted = false;
-		this.timeStart = 0;
-		this.updateDisplay(0);
-	}
-	static start() {
-		this.isStarted = true;
 	}
 }
 
@@ -102,12 +106,10 @@ function newGrid() {
 		Difficulty.current.mineCount,
 		container,
 		({ isFlagged, isUnflagged }) => {
-			Timer.start();
+			Timer.startUpdates();
 			if (isUnflagged) FlagsLeft.crement(1);
 			else if (isFlagged) FlagsLeft.crement(-1);
-			if (grid.hasWon || grid.hasLost) {
-				return;
-			}
+			if (grid.hasWon || grid.hasLost) Timer.stopUpdates();
 		},
 	);
 }

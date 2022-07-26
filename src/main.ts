@@ -53,15 +53,16 @@ class Timer {
 	}
 }
 
-interface difficultyInfo {
+interface DifficultyInfo {
 	name: string;
 	mineCount: number;
 	width: number;
 	height: number;
 }
 class Difficulty {
-	static elem = document.querySelector('.difficulty') as HTMLButtonElement;
-	static difficulties: difficultyInfo[] = [
+	static button = document.querySelector('.difficulty') as HTMLButtonElement;
+	static slot = this.button.querySelector('.slot') as HTMLSpanElement;
+	static difficulties: DifficultyInfo[] = [
 		{
 			name: 'Easy',
 			mineCount: 10,
@@ -80,21 +81,109 @@ class Difficulty {
 			width: 12,
 			height: 12,
 		},
+		{
+			name: 'Custom',
+			mineCount: 20,
+			width: 10,
+			height: 10,
+		},
 	];
+	static customDifficulty = this.difficulties[3];
 	static curDifficulty = 1;
 	static current = this.difficulties[this.curDifficulty];
+	static widthInput = document.querySelector(
+		'.customInputs .width',
+	) as HTMLInputElement;
+	static heightInput = document.querySelector(
+		'.customInputs .height',
+	) as HTMLInputElement;
+	static mineInput = document.querySelector(
+		'.customInputs .mineCount',
+	) as HTMLInputElement;
+	static labels = [
+		...document.querySelectorAll('.customInputs label'),
+	] as HTMLLabelElement[];
+	static inputs = [
+		this.widthInput,
+		this.heightInput,
+		this.mineInput,
+	] as HTMLInputElement[];
 	static updateDisplay() {
-		this.elem.textContent = `Difficulty: ${this.current.name}`;
+		this.slot.textContent = this.current.name;
 	}
 	static {
 		this.updateDisplay();
-		this.elem.addEventListener('click', () => {
+		this.button.addEventListener('click', () => {
 			this.curDifficulty =
 				++this.curDifficulty % this.difficulties.length;
 			this.current = this.difficulties[this.curDifficulty];
+			const isNotCustomDifficulty = this.current.name !== 'Custom';
+			this.labels.forEach((label) =>
+				label.setAttribute(
+					'aria-disabled',
+					isNotCustomDifficulty.toString(),
+				),
+			);
+			this.inputs.forEach(
+				(input) => (input.disabled = isNotCustomDifficulty),
+			);
 			this.updateDisplay();
 			restart();
 		});
+
+		const getSizeCB = (
+			input: HTMLInputElement,
+			startValue: number,
+			fieldKey: 'height' | 'width',
+		) => {
+			let value = startValue.toString();
+			input.value = value;
+			return () => {
+				const newVal = input.value;
+				if (newVal === '' || +newVal < 5) {
+					input.value = value;
+					return;
+				}
+				value = newVal;
+				this.customDifficulty[fieldKey] = +newVal;
+
+				const customDiff = this.customDifficulty;
+				if (
+					customDiff.mineCount >
+					customDiff.width * customDiff.height - 9
+				) {
+					const maxMineCount =
+						customDiff.width * customDiff.height - 9;
+					customDiff.mineCount = maxMineCount;
+					mineValue = maxMineCount.toString();
+					this.mineInput.value = mineValue;
+				}
+
+				restart();
+			};
+		};
+
+		let mineValue = '20';
+		this.mineInput.value = mineValue;
+		const mineCB = () => {
+			const newVal = this.mineInput.value;
+			const { width, height } = this.customDifficulty;
+			if (newVal === '' || +newVal < 0 || +newVal > width * height - 9) {
+				this.mineInput.value = mineValue;
+				return;
+			}
+			mineValue = newVal;
+			this.customDifficulty.mineCount = +newVal;
+			restart();
+		};
+
+		(
+			[
+				[this.widthInput, getSizeCB(this.widthInput, 10, 'width')],
+				[this.heightInput, getSizeCB(this.heightInput, 10, 'height')],
+				[this.mineInput, mineCB],
+			] as const
+		).forEach(([input, cb]) => input.addEventListener('input', cb));
 	}
 }
 

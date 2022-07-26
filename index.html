@@ -30,8 +30,30 @@
 				twice, undoing your action.
 			</p>
 			<h2><span>Options</span></h2>
-			<button class="restart">Restart</button>
-			<button class="difficulty">Difficulty:</button>
+			<div class="options">
+				<button class="restart">Restart</button>
+				<button class="difficulty">
+					Difficulty: <span class="slot"></span>
+				</button>
+				<div class="customInputs">
+					<label
+						aria-disabled="true"
+						title="Big values may cause overflow"
+						>Width: <input type="number" class="width" disabled
+					/></label>
+					<label
+						aria-disabled="true"
+						title="Big values may cause overflow"
+						>Height: <input type="number" class="height" disabled
+					/></label>
+					<label
+						aria-disabled="true"
+						title="Big values may cause overflow"
+						>Mine Count:
+						<input type="number" class="mineCount" disabled
+					/></label>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

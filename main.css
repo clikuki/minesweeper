@@ -19,6 +19,7 @@ body {
 	font-family: system-ui;
 	gap: 1rem;
 	padding: 0 0.5rem;
+	overflow: hidden;
 }
 /* || Board / Game */
 .container {
@@ -173,4 +174,40 @@ body {
 }
 .customInputs input {
 	width: 5rem;
+}
+/* || ribbon from https://stackoverflow.com/questions/30503866/right-corner-ribbon-on-a-div-css/#30505151 */
+.ribbon {
+	margin: 0;
+	background: var(--c-secondary-500);
+	color: white;
+	padding: 1em 0;
+	position: absolute;
+	top: 0;
+	right: 0;
+	transform-origin: top left;
+	translate: 30% 0;
+	rotate: 45deg;
+	text-decoration: none;
+	transition: translate 400ms;
+}
+.ribbon:hover {
+	text-decoration: underline;
+	translate: 32.5% -5%;
+}
+.ribbon:before,
+.ribbon:after {
+	content: '';
+	position: absolute;
+	top: 0;
+	margin: 0 -1px; /* tweak */
+	width: 100%;
+	min-width: 60px;
+	height: 100%;
+	background: var(--c-secondary-500);
+}
+.ribbon:before {
+	right: 100%;
+}
+.ribbon:after {
+	left: 100%;
 }

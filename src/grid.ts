@@ -57,24 +57,11 @@ export class Grid {
 				)
 					return;
 				const clickedTileNeighbors = this.tileNeighbors[i];
-				if (!this.hasInitialized) {
-					this.hasInitialized = true;
-					while (mineCount) {
-						const index = randInt(this.tiles.length - 1);
-						const tile = this.tiles[index];
-						if (
-							tile !== clickedTile &&
-							!clickedTileNeighbors.includes(tile) &&
-							!tile.isMine
-						) {
-							mineCount--;
-							tile.setMine(true);
-							this.tileNeighbors[index].forEach((tile) =>
-								tile.incrementCount(),
-							);
-						}
-					}
-				}
+				if (!this.hasInitialized)
+					this.#initialize(
+						mineCount,
+						new Set([...clickedTileNeighbors, clickedTile]),
+					);
 				if (clickedTile.state === 'HIDDEN') {
 					const prom = clickedTile.flip();
 					if (clickedTile.isMine) {
@@ -140,6 +127,20 @@ export class Grid {
 				},
 			);
 		});
+	}
+	#initialize(mineCount: number, avoid: Set<Tile>) {
+		this.hasInitialized = true;
+		while (mineCount) {
+			const index = randInt(this.tiles.length - 1);
+			const tile = this.tiles[index];
+			if (!avoid.has(tile) && !tile.isMine) {
+				mineCount--;
+				tile.setMine(true);
+				this.tileNeighbors[index].forEach((tile) =>
+					tile.incrementCount(),
+				);
+			}
+		}
 	}
 	checkForWin() {
 		return this.tiles.every(
